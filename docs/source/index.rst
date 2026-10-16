@@ -1,21 +1,36 @@
-Shrimply Documentation
-======================
+.. title:: Shrimply Documentation
 
-A simple yet powerful cross platform video editor.
+.. image:: _static/shrimply.svg
+   :alt: Shrimply logo
+   :width: 128px
+   :align: center
+   :class: home-logo
 
-Shrimply is a free and open-source video editor for creating videos from start
-to finish, whether you are making a quick edit or something fancy.
+Shrimply is a simple yet powerful cross-platform video editor.
 
-Visit the `Shrimply repository on GitHub
-<https://github.com/soirihiroka/shrimply>`__ to browse the source code, report
-issues, and contribute.
+.. image:: img/editor-overview.png
+   :alt: Shrimply editor showing the inspector, video preview, and multitrack timeline
+   :width: 100%
 
-Getting started
----------------
+.. raw:: html
 
-* :doc:`Getting started <getting-started>` explains how to launch Shrimply,
-  create a project, edit the timeline, and export it.
-* :doc:`Editor <guides/editor>` describes the main workspaces and shortcuts.
+   <iframe src="https://yapnation.pages.dev/embed/thread/?id=a3107889-ba1b-49ff-8653-c05d8ac5e022" title="Shrimply thread" width="100%" height="640" style="border:0" loading="lazy" allowfullscreen></iframe>
+
+Installation
+------------
+
+* :doc:`Flatpak <flatpak>`
+
+Get started
+-----------
+
+* :doc:`Getting started <getting-started>`
+* :doc:`Editor <guides/editor>`
+
+License
+-------
+
+* :doc:`Licenses <licenses>`
 
 .. toctree::
    :maxdepth: 2
@@ -25,11 +40,6 @@ Getting started
    getting-started
    guides/editor
 
-Installation
-------------
-
-* :doc:`Flatpak <flatpak>` covers installing and updating the Linux package.
-
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -37,35 +47,14 @@ Installation
 
    Flatpak <flatpak>
 
-Editing
--------
-
-* :doc:`Importing and creating media <guides/media>` lists accepted sources
-  and generated content, with guides for Blender, Kdenlive, and Manim.
-* :doc:`Effects and animation <guides/effects>` covers keyframes, visual and
-  audio effects, and 3D scenes.
-* :doc:`Expressions <guides/expressions>` covers values and functions for
-  procedural and audio-reactive properties.
-* :doc:`Audio and captions <guides/audio-captions>` explains caption editing,
-  audio processing, and lip sync.
-* :doc:`Export <guides/export>` describes output formats and encoder options.
-
 .. toctree::
    :maxdepth: 2
    :hidden:
    :caption: Editing
 
    guides/media
-   guides/effects
    guides/expressions
-   guides/audio-captions
    guides/export
-
-Compute and automation
-----------------------
-
-* :doc:`Compute server <server/index>` covers setup and optional AI features.
-* :doc:`MCP integration <integrations/mcp>` documents live editor automation.
 
 .. toctree::
    :maxdepth: 2
@@ -75,13 +64,6 @@ Compute and automation
    server/index
    integrations/mcp
 
-Project information
--------------------
-
-* :doc:`Security <security>` explains trust for executable sources.
-* :doc:`Development <development>` contains the supported repository workflow.
-* :doc:`Licenses <licenses>` explains project and third-party licensing.
-
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -90,7 +72,3 @@ Project information
    security
    development
    licenses
-
-.. image:: img/editor-overview.png
-   :alt: Shrimply editor showing the inspector, video preview, and multitrack timeline
-   :width: 100%

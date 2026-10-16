@@ -395,6 +395,57 @@ pub extern "C" fn shrimply_qt_timeline_confirm_track_remux(remux: bool) -> bool 
 }
 
 #[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_timeline_take_source_deletion() -> bool {
+    SURFACES.with_borrow_mut(|surfaces| {
+        surfaces
+            .as_mut()
+            .is_some_and(|surfaces| surfaces.timeline.take_source_deletion())
+    })
+}
+
+#[unsafe(no_mangle)]
+/// # Safety
+///
+/// When `output` is non-null and `capacity` is nonzero, it must point to `capacity` writable bytes.
+pub unsafe extern "C" fn shrimply_qt_timeline_source_deletion_path(
+    output: *mut u8,
+    capacity: usize,
+) -> usize {
+    SURFACES.with_borrow(|surfaces| {
+        let path = surfaces
+            .as_ref()
+            .and_then(|surfaces| surfaces.timeline.source_deletion_path())
+            .map(|path| path.to_string_lossy())
+            .unwrap_or_default();
+        let bytes = path.as_bytes();
+        if !output.is_null() && capacity > 0 {
+            let length = bytes.len().min(capacity - 1);
+            unsafe {
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(), output, length);
+                output.add(length).write(0);
+            }
+        }
+        bytes.len()
+    })
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_timeline_confirm_source_deletion(delete: bool) -> bool {
+    SURFACES.with_borrow_mut(|surfaces| {
+        let Some(surfaces) = surfaces.as_mut() else {
+            return false;
+        };
+        match surfaces.timeline.confirm_source_deletion(delete) {
+            Ok(()) => true,
+            Err(error) => {
+                surfaces.context_action_error = error;
+                false
+            }
+        }
+    })
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn shrimply_qt_render_preview(
     width: u32,
     height: u32,
@@ -1219,6 +1270,78 @@ pub extern "C" fn shrimply_qt_preview_set_guides_visible(visible: bool) {
     SURFACES.with_borrow(|surfaces| {
         if let Some(surfaces) = surfaces.as_ref() {
             surfaces.preview.set_guides_visible(visible);
+        }
+    });
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_pen_tool_active() -> bool {
+    SURFACES.with_borrow(|surfaces| {
+        surfaces
+            .as_ref()
+            .is_some_and(|surfaces| surfaces.preview.pen_tool_active())
+    })
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_fill_tool_active() -> bool {
+    SURFACES.with_borrow(|surfaces| {
+        surfaces
+            .as_ref()
+            .is_some_and(|surfaces| surfaces.preview.fill_tool_active())
+    })
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_transform_tool_active() -> bool {
+    SURFACES.with_borrow(|surfaces| {
+        surfaces
+            .as_ref()
+            .is_some_and(|surfaces| surfaces.preview.transform_tool_active())
+    })
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_eraser_tool_active() -> bool {
+    SURFACES.with_borrow(|surfaces| {
+        surfaces
+            .as_ref()
+            .is_some_and(|surfaces| surfaces.preview.eraser_tool_active())
+    })
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_select_pen_tool() {
+    SURFACES.with_borrow_mut(|surfaces| {
+        if let Some(surfaces) = surfaces.as_mut() {
+            surfaces.preview.select_pen_tool();
+        }
+    });
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_select_fill_tool() {
+    SURFACES.with_borrow_mut(|surfaces| {
+        if let Some(surfaces) = surfaces.as_mut() {
+            surfaces.preview.select_fill_tool();
+        }
+    });
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_select_transform_tool() {
+    SURFACES.with_borrow_mut(|surfaces| {
+        if let Some(surfaces) = surfaces.as_mut() {
+            surfaces.preview.select_transform_tool();
+        }
+    });
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn shrimply_qt_preview_set_eraser_tool_active(active: bool) {
+    SURFACES.with_borrow_mut(|surfaces| {
+        if let Some(surfaces) = surfaces.as_mut() {
+            surfaces.preview.set_eraser_tool_active(active);
         }
     });
 }

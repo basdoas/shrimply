@@ -30,41 +30,18 @@ Shrimply is currently pre-alpha software, which means you should expect:
 - Irreversible project file breakage
 - Random crashes and resource leaks
 
-For more information about Shrimply's features and workflows, visit the
-[documentation website](https://shrimply.pages.dev). See
-[Getting Started](https://shrimply.pages.dev/getting-started.html) for installation
-and [Development](https://shrimply.pages.dev/development.html) for building from source.
+See the [documentation](https://shrimply.pages.dev) for more.
 
 ## Contributing
 
-Contributions to Shrimply are welcome. There are several ways to help beyond
-writing code:
+Contributions are welcome.
 
 - Report and investigate [issues](https://github.com/soirihiroka/shrimply/issues)
 - Improve the documentation
-- Translate Shrimply's interface
+- Translate the interface
 - Test editing workflows and project importers
-- Help other users
 
-Before submitting a contribution, read the repository's
-[contribution terms](CONTRIBUTING.md).
-
-## Developer Information
-
-### Technology Stack
-
-Shrimply's main application is written in Rust and uses these technologies:
-
-- **Interface**: GTK 4 and libadwaita
-- **Rendering**: Skia, wgpu, Slang, and CUDA
-- **Media**: FFmpeg and PipeWire
-- **Compute server**: Python
-
-### Finding Things to Work On
-
-Browse the [open issues](https://github.com/soirihiroka/shrimply/issues) for
-reported bugs and planned work. Comment on an issue before starting a larger
-change so its scope can be discussed first.
+Read the [contribution terms](CONTRIBUTING.md) before submitting.
 
 ## License
 

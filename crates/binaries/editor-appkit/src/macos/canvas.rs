@@ -1,9 +1,10 @@
 use objc2::runtime::ProtocolObject;
 use objc2::{AnyThread, DefinedClass, MainThreadOnly, define_class, msg_send, rc::Retained};
 use objc2_app_kit::{
-    NSDragOperation, NSDraggingDestination, NSDraggingInfo, NSEvent, NSEventModifierFlags,
-    NSPasteboard, NSPasteboardTypeFileURL, NSPasteboardTypePNG, NSPasteboardTypeString,
-    NSPasteboardTypeTIFF, NSPasteboardTypeURL, NSTrackingArea, NSTrackingAreaOptions, NSView,
+    NSAppearanceCustomization, NSAppearanceNameAqua, NSAppearanceNameDarkAqua, NSDragOperation,
+    NSDraggingDestination, NSDraggingInfo, NSEvent, NSEventModifierFlags, NSPasteboard,
+    NSPasteboardTypeFileURL, NSPasteboardTypePNG, NSPasteboardTypeString, NSPasteboardTypeTIFF,
+    NSPasteboardTypeURL, NSTrackingArea, NSTrackingAreaOptions, NSView,
 };
 use objc2_foundation::{MainThreadMarker, NSRect, NSSize, NSString, NSURL};
 use objc2_foundation::{NSArray, NSObjectProtocol};
@@ -870,17 +871,14 @@ impl CanvasView {
             shrimply_timeline_skia::external_content::ExternalDropAction::Complete => Ok(()),
             shrimply_timeline_skia::external_content::ExternalDropAction::Importing(_) => Ok(()),
             shrimply_timeline_skia::external_content::ExternalDropAction::ConfirmRemux {
-                paths,
                 batch,
             } => {
-                if !self.confirm_remux_prompt() {
-                    return Ok(());
-                }
+                let accepted = self.confirm_remux_prompt();
                 let mut content = self.ivars().content.borrow_mut();
                 let Content::Timeline(scene) = &mut *content else {
                     return Err("timeline closed while confirming media remux".into());
                 };
-                scene.begin_external_remux(paths, point, batch)
+                scene.confirm_import_remux(batch, accepted)
             }
         }
     }
@@ -904,17 +902,14 @@ impl CanvasView {
         let batch = match action {
             shrimply_timeline_skia::external_content::ExternalDropAction::Importing(batch) => batch,
             shrimply_timeline_skia::external_content::ExternalDropAction::ConfirmRemux {
-                paths,
                 batch,
             } => {
-                if !self.confirm_remux_prompt() {
-                    return Ok(());
-                }
+                let accepted = self.confirm_remux_prompt();
                 let mut content = self.ivars().content.borrow_mut();
                 let Content::Timeline(scene) = &mut *content else {
                     return Err("timeline closed while confirming media remux".into());
                 };
-                scene.begin_external_remux(paths, point, batch)?;
+                scene.confirm_import_remux(batch, accepted)?;
                 batch
             }
             shrimply_timeline_skia::external_content::ExternalDropAction::Complete => {
@@ -932,7 +927,7 @@ impl CanvasView {
         let alert = objc2_app_kit::NSAlert::new(self.mtm());
         alert.setMessageText(&NSString::from_str("Remux MKV/WebM to MP4?"));
         alert.setInformativeText(&NSString::from_str(
-            "MP4 is the supported timeline format. The source files will be kept.",
+            "MP4 is the supported timeline format. The MP4 will be created beside the source. After import, you can choose whether to delete the original.",
         ));
         alert.addButtonWithTitle(&NSString::from_str("Remux"));
         alert.addButtonWithTitle(&NSString::from_str("Cancel"));
@@ -1042,6 +1037,16 @@ impl CanvasView {
             );
             renderer.draw(surface_label, |canvas| {
                 self.ivars().surface_dirty.set(false);
+                // Custom Skia drawing does not inherit AppKit's appearance automatically.
+                let dark = unsafe {
+                    self.effectiveAppearance()
+                        .bestMatchFromAppearancesWithNames(&NSArray::from_slice(&[
+                            NSAppearanceNameAqua,
+                            NSAppearanceNameDarkAqua,
+                        ]))
+                        .is_some_and(|name| *name == *NSAppearanceNameDarkAqua)
+                };
+                shrimply_cross_ui_theme::set_dark(dark);
                 canvas.clear(shrimply_cross_ui_theme::current().view_bg);
                 canvas.scale((scale as f32, scale as f32));
                 match &mut *self.ivars().content.borrow_mut() {
@@ -1206,6 +1211,19 @@ impl CanvasView {
                 }
             }
         };
+        let source_deletion = if self.ivars().imports.borrow().source_deletion_open {
+            None
+        } else if let Content::Timeline(scene) = &mut *self.ivars().content.borrow_mut() {
+            scene.take_source_deletion()
+        } else {
+            None
+        };
+        if let Some(request) = source_deletion
+            && let Err(error) =
+                super::media::confirm_source_deletion(request, &self.ivars().imports, self.mtm())
+        {
+            self.show_error(&error);
+        }
         for event in external_imports {
             self.ivars().imports.borrow_mut().finish_external(event);
         }

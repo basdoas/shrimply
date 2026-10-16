@@ -89,6 +89,10 @@ extern "C" bool shrimply_qt_timeline_activate_track_add_menu_item(std::size_t in
 extern "C" std::uint8_t shrimply_qt_timeline_import_track_file(const std::uint8_t *path,
                                                                  std::size_t length);
 extern "C" bool shrimply_qt_timeline_confirm_track_remux(bool remux);
+extern "C" bool shrimply_qt_timeline_take_source_deletion();
+extern "C" std::size_t shrimply_qt_timeline_source_deletion_path(std::uint8_t *output,
+                                                                std::size_t capacity);
+extern "C" bool shrimply_qt_timeline_confirm_source_deletion(bool remove);
 extern "C" std::size_t shrimply_qt_timeline_prepare_context_menu(float x, float y);
 extern "C" std::size_t shrimply_qt_timeline_context_menu_label(std::size_t index,
                                                                  std::uint8_t *output,
@@ -152,6 +156,14 @@ constexpr float PreviewScrollPixelsPerStep = 120.0f;
 extern "C" bool shrimply_qt_preview_navigation(float width, float height, float x, float y, std::uint8_t phase, float steps);
 extern "C" bool shrimply_qt_preview_guides_visible();
 extern "C" void shrimply_qt_preview_set_guides_visible(bool visible);
+extern "C" bool shrimply_qt_preview_pen_tool_active();
+extern "C" bool shrimply_qt_preview_fill_tool_active();
+extern "C" bool shrimply_qt_preview_transform_tool_active();
+extern "C" bool shrimply_qt_preview_eraser_tool_active();
+extern "C" void shrimply_qt_preview_select_pen_tool();
+extern "C" void shrimply_qt_preview_select_fill_tool();
+extern "C" void shrimply_qt_preview_select_transform_tool();
+extern "C" void shrimply_qt_preview_set_eraser_tool_active(bool active);
 
 namespace {
 enum class TrackFileImportResult : std::uint8_t {
@@ -277,6 +289,22 @@ public:
                 [surface]() {
                     if (surface) {
                         surface->presentTimelineError();
+                    }
+                },
+                Qt::QueuedConnection);
+        }
+        if (shrimply_qt_timeline_take_source_deletion()) {
+            const std::size_t length = shrimply_qt_timeline_source_deletion_path(nullptr, 0);
+            QByteArray buffer(static_cast<qsizetype>(length + 1), Qt::Uninitialized);
+            shrimply_qt_timeline_source_deletion_path(
+                reinterpret_cast<std::uint8_t *>(buffer.data()), static_cast<std::size_t>(buffer.size()));
+            const QString path = QString::fromUtf8(buffer.constData());
+            const QPointer<shrimply::TimelineSurface> surface = surface_;
+            QMetaObject::invokeMethod(
+                surface_,
+                [surface, path]() {
+                    if (surface) {
+                        emit surface->sourceDeletionRequested(path);
                     }
                 },
                 Qt::QueuedConnection);
@@ -626,6 +654,13 @@ void TimelineSurface::confirmTrackRemux(bool remux) {
     update();
 }
 
+void TimelineSurface::confirmSourceDeletion(bool remove) {
+    if (!shrimply_qt_timeline_confirm_source_deletion(remove)) {
+        emit contextActionFailed(context_action_error());
+    }
+    update();
+}
+
 void TimelineSurface::setContextMenuControl(int index, qreal value) {
     if (index < 0 || index >= contextMenuItems().size()) {
         return;
@@ -885,6 +920,49 @@ void PreviewSurface::setFullscreenPreview(bool fullscreen) {
     }
     fullscreen_preview_ = fullscreen;
     emit fullscreenPreviewChanged();
+    update();
+}
+
+bool PreviewSurface::penToolActive() const {
+    return shrimply_qt_preview_pen_tool_active();
+}
+
+bool PreviewSurface::fillToolActive() const {
+    return shrimply_qt_preview_fill_tool_active();
+}
+
+bool PreviewSurface::transformToolActive() const {
+    return shrimply_qt_preview_transform_tool_active();
+}
+
+bool PreviewSurface::eraserToolActive() const {
+    return shrimply_qt_preview_eraser_tool_active();
+}
+
+void PreviewSurface::setEraserToolActive(bool active) {
+    if (eraserToolActive() == active) {
+        return;
+    }
+    shrimply_qt_preview_set_eraser_tool_active(active);
+    emit paintToolChanged();
+    update();
+}
+
+void PreviewSurface::selectPenTool() {
+    shrimply_qt_preview_select_pen_tool();
+    emit paintToolChanged();
+    update();
+}
+
+void PreviewSurface::selectFillTool() {
+    shrimply_qt_preview_select_fill_tool();
+    emit paintToolChanged();
+    update();
+}
+
+void PreviewSurface::selectTransformTool() {
+    shrimply_qt_preview_select_transform_tool();
+    emit paintToolChanged();
     update();
 }
 

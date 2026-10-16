@@ -46,6 +46,7 @@ public:
     Q_INVOKABLE void activateTrackAddMenuItem(int index);
     Q_INVOKABLE void importTrackFile(const QUrl &url);
     Q_INVOKABLE void confirmTrackRemux(bool remux);
+    Q_INVOKABLE void confirmSourceDeletion(bool remove);
     Q_INVOKABLE void setContextMenuControl(int index, qreal value);
     Q_INVOKABLE void saveContextFrame(const QUrl &url);
     Q_INVOKABLE void deleteContextFoldedTrack();
@@ -61,6 +62,7 @@ signals:
     void trackAddMenuRequested(qreal x, qreal y);
     void trackImportRequested();
     void trackRemuxRequested();
+    void sourceDeletionRequested(const QString &path);
     void saveFrameRequested();
     void contextActionFailed(const QString &message);
     void deleteTrackRequested(int clipCount);
@@ -90,6 +92,10 @@ class PreviewSurface : public QQuickFramebufferObject {
     Q_OBJECT
     Q_PROPERTY(bool guidesVisible READ guidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool fullscreenPreview READ fullscreenPreview WRITE setFullscreenPreview NOTIFY fullscreenPreviewChanged)
+    Q_PROPERTY(bool penToolActive READ penToolActive NOTIFY paintToolChanged)
+    Q_PROPERTY(bool fillToolActive READ fillToolActive NOTIFY paintToolChanged)
+    Q_PROPERTY(bool transformToolActive READ transformToolActive NOTIFY paintToolChanged)
+    Q_PROPERTY(bool eraserToolActive READ eraserToolActive WRITE setEraserToolActive NOTIFY paintToolChanged)
 
 public:
     explicit PreviewSurface(QQuickItem *parent = nullptr);
@@ -98,10 +104,19 @@ public:
     void setGuidesVisible(bool visible);
     bool fullscreenPreview() const;
     void setFullscreenPreview(bool fullscreen);
+    bool penToolActive() const;
+    bool fillToolActive() const;
+    bool transformToolActive() const;
+    bool eraserToolActive() const;
+    void setEraserToolActive(bool active);
+    Q_INVOKABLE void selectPenTool();
+    Q_INVOKABLE void selectFillTool();
+    Q_INVOKABLE void selectTransformTool();
 
 signals:
     void guidesVisibleChanged();
     void fullscreenPreviewChanged();
+    void paintToolChanged();
 
 protected:
     void hoverMoveEvent(QHoverEvent *event) override;

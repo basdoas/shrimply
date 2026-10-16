@@ -4,9 +4,11 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQml.Models
+import Qt.labs.qmlmodels
 import dev.shrimply.editor
 import dev.shrimply.export
 import dev.shrimply.inspector
+import dev.shrimply.preferences
 
 ApplicationWindow {
     id: window
@@ -49,7 +51,13 @@ ApplicationWindow {
         id: backend
     }
 
-    Component.onCompleted: Qt.callLater(backend.begin)
+    property bool startupPending: true
+    onFrameSwapped: {
+        if (startupPending) {
+            startupPending = false
+            Qt.callLater(backend.begin)
+        }
+    }
 
     Timer {
         interval: 16
@@ -286,7 +294,7 @@ ApplicationWindow {
             }
             Label {
                 Layout.alignment: Qt.AlignHCenter
-                text: backend.loadingText
+                text: backend.translate(backend.loadingText)
                 opacity: 0.7
             }
         }
@@ -397,10 +405,38 @@ ApplicationWindow {
                                     onClicked: if (previewLoader.item) previewLoader.item.guidesVisible = checked
                                 }
                                 ToolSeparator {}
-                                ToolButton { icon.name: "draw-freehand"; text: backend.translate("Pen"); display: AbstractButton.IconOnly }
-                                ToolButton { icon.name: "fill-color"; text: backend.translate("Fill"); display: AbstractButton.IconOnly }
-                                ToolButton { icon.name: "transform-move"; text: backend.translate("Transform"); display: AbstractButton.IconOnly }
-                                ToolButton { icon.name: "draw-eraser"; text: backend.translate("Eraser"); display: AbstractButton.IconOnly }
+                                ToolButton {
+                                    icon.name: "draw-freehand"
+                                    text: backend.translate("Pen")
+                                    display: AbstractButton.IconOnly
+                                    checkable: true
+                                    Binding on checked { value: previewLoader.item ? previewLoader.item.penToolActive : false }
+                                    onClicked: if (checked && previewLoader.item) previewLoader.item.selectPenTool()
+                                }
+                                ToolButton {
+                                    icon.name: "fill-color"
+                                    text: backend.translate("Fill")
+                                    display: AbstractButton.IconOnly
+                                    checkable: true
+                                    Binding on checked { value: previewLoader.item ? previewLoader.item.fillToolActive : false }
+                                    onClicked: if (checked && previewLoader.item) previewLoader.item.selectFillTool()
+                                }
+                                ToolButton {
+                                    icon.name: "transform-move"
+                                    text: backend.translate("Transform")
+                                    display: AbstractButton.IconOnly
+                                    checkable: true
+                                    Binding on checked { value: previewLoader.item ? previewLoader.item.transformToolActive : false }
+                                    onClicked: if (checked && previewLoader.item) previewLoader.item.selectTransformTool()
+                                }
+                                ToolButton {
+                                    icon.name: "draw-eraser"
+                                    text: backend.translate("Eraser")
+                                    display: AbstractButton.IconOnly
+                                    checkable: true
+                                    Binding on checked { value: previewLoader.item ? previewLoader.item.eraserToolActive : false }
+                                    onClicked: if (previewLoader.item) previewLoader.item.eraserToolActive = checked
+                                }
                             }
                         }
 
@@ -480,16 +516,19 @@ ApplicationWindow {
                             onClicked: if (timelineLoader.item) timelineLoader.item.magnetEnabled = checked
                         }
                         ToolButton {
-                            icon.name: "view-grid"
+                            icon.name: "metronome-symbolic"
                             text: backend.translate("Beat Grid")
                             display: AbstractButton.IconOnly
                             checkable: true
                             Binding on checked { value: timelineLoader.item ? timelineLoader.item.beatGridEnabled : false }
                             onClicked: if (timelineLoader.item) timelineLoader.item.beatGridEnabled = checked
                         }
-                        ToolSeparator {}
+                        ToolSeparator {
+                            orientation: Qt.platform.os === "windows" ? Qt.Horizontal : Qt.Vertical
+                            Layout.fillWidth: Qt.platform.os === "windows"
+                        }
                         ToolButton {
-                            icon.name: "edit-select"
+                            icon.name: "pointer-primary-click-symbolic"
                             text: backend.translate("Pointer")
                             display: AbstractButton.IconOnly
                             checkable: true
@@ -510,7 +549,10 @@ ApplicationWindow {
                             onClicked: if (checked && timelineLoader.item)
                                 timelineLoader.item.cutEnabled = true
                         }
-                        ToolSeparator {}
+                        ToolSeparator {
+                            orientation: Qt.platform.os === "windows" ? Qt.Horizontal : Qt.Vertical
+                            Layout.fillWidth: Qt.platform.os === "windows"
+                        }
                         ToolButton {
                             icon.name: "timeline-mode-overwrite"
                             text: backend.translate("Overwrite/Insert")
@@ -607,7 +649,7 @@ ApplicationWindow {
 
     Menu {
         id: timelineContextMenu
-        popupType: Popup.Window
+        popupType: Qt.platform.os === "windows" ? Popup.Item : Popup.Window
 
         Instantiator {
             model: timelineLoader.item ? timelineLoader.item.contextMenuItems : []
@@ -712,6 +754,10 @@ ApplicationWindow {
                 timelineLoader.item.importTrackFile(selected)
         }
         function onTrackRemuxRequested() { timelineRemuxDialog.open() }
+        function onSourceDeletionRequested(path) {
+            timelineSourceDeletionDialog.sourcePath = path
+            timelineSourceDeletionDialog.open()
+        }
         function onSaveFrameRequested() {
             const selected = backend.showFileSaveDialog(
                 "",
@@ -742,9 +788,12 @@ ApplicationWindow {
         title: backend.translate("Remux MKV/WebM to MP4?")
         modal: true
         anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape
+        onAccepted: timelineLoader.item.confirmTrackRemux(true)
+        onRejected: timelineLoader.item.confirmTrackRemux(false)
 
         contentItem: Label {
-            text: backend.translate("MP4 is the supported timeline format. The source file will be kept.")
+            text: backend.translate("MP4 is the supported timeline format. The MP4 will be created beside the source. After import, you can choose whether to delete the original.")
             wrapMode: Text.Wrap
         }
         footer: DialogButtonBox {
@@ -757,14 +806,39 @@ ApplicationWindow {
                 highlighted: true
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             }
-            onRejected: {
-                timelineRemuxDialog.close()
-                timelineLoader.item.confirmTrackRemux(false)
+            onRejected: timelineRemuxDialog.reject()
+            onAccepted: timelineRemuxDialog.accept()
+        }
+    }
+
+    Dialog {
+        id: timelineSourceDeletionDialog
+        property string sourcePath: ""
+        title: backend.translate("Delete original file?")
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape
+        contentItem: Label {
+            text: backend.translate("The file was remuxed. Delete the original to keep only the MP4 copy?") + "\n\n" + timelineSourceDeletionDialog.sourcePath
+            textFormat: Text.PlainText
+            wrapMode: Text.Wrap
+        }
+        onOpened: keepOriginalButton.forceActiveFocus()
+        onAccepted: timelineLoader.item.confirmSourceDeletion(true)
+        onRejected: timelineLoader.item.confirmSourceDeletion(false)
+        footer: DialogButtonBox {
+            Button {
+                id: keepOriginalButton
+                text: backend.translate("Keep")
+                highlighted: true
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             }
-            onAccepted: {
-                timelineRemuxDialog.close()
-                timelineLoader.item.confirmTrackRemux(true)
+            Button {
+                text: backend.translate("Delete")
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             }
+            onRejected: timelineSourceDeletionDialog.reject()
+            onAccepted: timelineSourceDeletionDialog.accept()
         }
     }
 

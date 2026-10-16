@@ -51,13 +51,15 @@ Import media
 Move the playhead to the desired start time, then select the destination track.
 Click |add| **Add** in that track's controls and choose |import| **Import
 Media…** or **Import Captions…**. The file is inserted at the playhead on the
-track whose menu you opened. If that track is part of a multi-track selection,
-the import targets all selected tracks of the same type.
+track whose menu you opened. If several tracks of that type are selected, the
+file goes on all of them.
 
 Video and audio files can only be imported to video or audio tracks. WebVTT
-files can only be imported to caption tracks. MKV and WebM files dropped onto
-the timeline can be losslessly remuxed to MP4 first; they cannot be imported
-directly from a track's add menu.
+files can only be imported to caption tracks. MKV and WebM imports ask for
+confirmation before losslessly remuxing to MP4 in the source file's directory.
+An existing MP4 is never overwritten. The timeline uses the new MP4, and after
+a successful import a dialog offers to keep or delete the original. Keeping the
+original is the default; cancelling or failing the import never deletes it.
 
 Supported formats
 ~~~~~~~~~~~~~~~~~
@@ -141,9 +143,6 @@ On an audio track, the menu provides:
    * - |audio-generator|
      - **Audio Generator** creates a procedural audio item configured in the
        inspector.
-
-Text to Speech and Video Generation are backed by AI models and require the
-:doc:`Shrimply server <../server/index>`.
 
 Record content
 --------------

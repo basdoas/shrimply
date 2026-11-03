@@ -25,7 +25,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
 
 RUN flatpak remote-add --user --if-not-exists flathub \
         https://dl.flathub.org/repo/flathub.flatpakrepo \
-    && flatpak install --user -y flathub org.gnome.Sdk//50 org.gnome.Platform//50
+    && flatpak install --user -y flathub org.gnome.Sdk//51 org.gnome.Platform//51 \
+        org.freedesktop.Sdk.Extension.llvm22//26.08
 
 RUN apt-get update && apt-get install -y --no-install-recommends librsvg2-common \
     && apt-get clean \
@@ -57,5 +58,5 @@ CMD mkdir -p /usr/local/libclang-deps \
         /flatpak/build dev.shrimply.Shrimply.yml \
     && flatpak build-bundle \
         --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
-        /flatpak/repo /output/shrimply-gtk.flatpak dev.shrimply.Shrimply \
-    && chown "${OUTPUT_UID}:${OUTPUT_GID}" /output/shrimply-gtk.flatpak
+        /flatpak/repo /output/shrimply-gtk-x86_64.flatpak dev.shrimply.Shrimply \
+    && chown "${OUTPUT_UID}:${OUTPUT_GID}" /output/shrimply-gtk-x86_64.flatpak

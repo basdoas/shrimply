@@ -98,7 +98,7 @@ CRASH_SINCE ?= -1 day
 DOCKER ?= docker
 FLATPAK_GTK_IMAGE ?= shrimply-flatpak-gtk-builder
 FLATPAK_GTK_CACHE ?= $(CURDIR)/target/flatpak-gtk
-FLATPAK_BUNDLE := dist/shrimply-gtk.flatpak
+FLATPAK_BUNDLE := dist/shrimply-gtk-x86_64.flatpak
 
 PREFIX ?= $(HOME)/.local
 BINDIR ?= $(PREFIX)/bin
@@ -237,7 +237,7 @@ dev: native-deps cuda-artifacts
 	fi; \
 	exit $$status
 
-APPKIT_BUILD_ENV = RUSTFLAGS="-C prefer-dynamic -C link-arg=-Wl,-rpath,$(RUST_LIBDIR)" LIBRARY_PATH="$$(brew --prefix)/lib" PKG_CONFIG="$$(brew --prefix pkgconf)/bin/pkg-config" CLANG_PATH="$$(brew --prefix llvm@18)/bin/clang" LIBCLANG_PATH="$$(brew --prefix llvm@18)/lib"
+APPKIT_BUILD_ENV = RUSTFLAGS="-C prefer-dynamic -C link-arg=-Wl,-rpath,$(RUST_LIBDIR)" LIBRARY_PATH="$$(brew --prefix)/lib" PKG_CONFIG="$$(brew --prefix pkgconf)/bin/pkg-config" CLANG_PATH="$$(brew --prefix llvm@22)/bin/clang" LIBCLANG_PATH="$$(brew --prefix llvm@22)/lib"
 
 .PHONY: appkit-icon appkit-build appkit-release appkit-check appkit-lint appkit-components-check appkit-components-showcase
 appkit-icon:

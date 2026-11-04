@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04  # Use newer Ubuntu with Pango >= 1.57
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,11 +24,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libglib2.0-dev libgtk-4-dev \
             libfreetype6-dev libavutil-dev libavcodec-dev libavformat-dev \
-            libswscale-dev zlib1g-dev clang
+            libswscale-dev zlib1g-dev clang meson
+
+      - name: Install newer Pango from source
+        run: |
+          # Download and build Pango 1.57+
+          wget https://download.gnome.org/sources/pango/1.57/pango-1.57.0.tar.xz
+          tar xf pango-1.57.0.tar.xz
+          cd pango-1.57.0
+          meson setup build --prefix=/usr/local
+          ninja -C build
+          sudo ninja -C build install
+          cd ..
 
       - name: Build editor-gtk
         run: |
           export CARGO_BUILD_JOBS=4
+          export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
           cargo build -p shrimply-editor-gtk --release
         env:
           RUST_BACKTRACE: 1

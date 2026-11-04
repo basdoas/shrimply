@@ -18,8 +18,10 @@
 Shrimply is a simple yet powerful cross-platform video editor.
 
 System requirements:
-- Nvidia or Apple Silicon GPU
-- Wayland or macOS 15+
+- GPU: Nvidia (Turing - Blackwell) | Apple Silicon GPU
+- OS: Fedora 44 or equivalent | macOS 15+ | Windows 10+ (Community support)
+- CPU: X86-64 (Linux/Windows) | Apple Silicon (macOS)
+- Display environment: Wayland is required for Linux
 
 Shrimply is currently pre-alpha software, which means you should expect:
 
@@ -29,6 +31,8 @@ Shrimply is currently pre-alpha software, which means you should expect:
 - Random performance regressions
 - Irreversible project file breakage
 - Random crashes and resource leaks
+
+If you noticed any performance/correctness issue, feel free to open [issues](https://github.com/soirihiroka/shrimply/issues).
 
 See the [documentation](https://shrimply.pages.dev) for more.
 

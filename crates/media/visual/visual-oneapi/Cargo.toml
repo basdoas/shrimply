@@ -1,0 +1,8 @@
+[package]
+name = "shrimply-visual-oneapi"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shrimply-gpu-oneapi = { workspace = true }
+shrimply-denoise-oneapi = { workspace = true }

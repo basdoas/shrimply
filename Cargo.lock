@@ -5792,6 +5792,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "shrimply-denoise-oneapi"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "shrimply-gpu-oneapi",
+]
+
+[[package]]
 name = "shrimply-denoise-optix"
 version = "0.1.0"
 dependencies = [
@@ -5909,6 +5917,7 @@ dependencies = [
  "shrimply-tts",
  "shrimply-visual-cuda",
  "shrimply-visual-modifiers",
+ "shrimply-visual-oneapi",
  "tracing",
  "uuid",
 ]
@@ -5938,6 +5947,7 @@ dependencies = [
  "shrimply-recent-projects",
  "shrimply-trust-core",
  "shrimply-visual-cuda",
+ "shrimply-visual-oneapi",
  "tracing",
 ]
 
@@ -6105,6 +6115,15 @@ version = "0.1.0"
 dependencies = [
  "objc2",
  "objc2-metal",
+]
+
+[[package]]
+name = "shrimply-gpu-oneapi"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "half",
+ "libc",
 ]
 
 [[package]]
@@ -6636,6 +6655,14 @@ version = "0.1.0"
 dependencies = [
  "cc",
  "shrimply-gpu-cuda",
+]
+
+[[package]]
+name = "shrimply-oneapi-test"
+version = "0.1.0"
+dependencies = [
+ "shrimply-denoise-oneapi",
+ "shrimply-gpu-oneapi",
 ]
 
 [[package]]
@@ -7765,6 +7792,14 @@ dependencies = [
  "shrimply-scene-3d-modifiers",
  "strum",
  "uuid",
+]
+
+[[package]]
+name = "shrimply-visual-oneapi"
+version = "0.1.0"
+dependencies = [
+ "shrimply-denoise-oneapi",
+ "shrimply-gpu-oneapi",
 ]
 
 [[package]]

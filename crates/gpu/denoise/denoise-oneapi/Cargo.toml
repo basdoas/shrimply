@@ -1,0 +1,11 @@
+[package]
+name = "shrimply-denoise-oneapi"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+shrimply-gpu-oneapi.workspace = true
+
+[build-dependencies]
+cc.workspace = true

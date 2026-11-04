@@ -1,0 +1,12 @@
+[package]
+name = "shrimply-oneapi-test"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "shrimply-oneapi-test"
+path = "src/main.rs"
+
+[dependencies]
+shrimply-gpu-oneapi = { workspace = true }
+shrimply-denoise-oneapi = { workspace = true }

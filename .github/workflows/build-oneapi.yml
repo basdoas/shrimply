@@ -1,0 +1,30 @@
+name: Build with oneAPI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libglib2.0-dev libgtk-4-dev \
+            libfreetype6-dev libavutil-dev libavcodec-dev libavformat-dev \
+            libswscale-dev zlib1g-dev
+
+      - name: Build editor-gtk
+        run: |
+          export CARGO_BUILD_JOBS=4
+          cargo build -p shrimply-editor-gtk --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shrimply-editor-linux
+          path: target/release/shrimply-editor

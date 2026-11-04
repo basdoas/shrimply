@@ -3,10 +3,13 @@ resolver = "3"
 members = [
     "crates/application/local-ipc",
     "crates/gpu/vulkan/gpu-vulkan",
+    "crates/gpu/oneapi/gpu-oneapi",
     "crates/gpu/denoise/denoise-metal",
+    "crates/gpu/denoise/denoise-oneapi",
     "crates/gpu/metal/gpu-metal",
     "crates/media/visual/3d/3dgs/3dgs-vulkan",
     "crates/binaries/editor-appkit",
+    "crates/binaries/oneapi-test",
     "crates/gpu/cuda/gpu-cuda",
     "crates/binaries/editor-qt",
     "crates/binaries/editor-gtk",
@@ -23,6 +26,7 @@ members = [
     "crates/media/visual/background",
     "crates/diagnostics/profiling",
     "crates/media/visual/blender/blender-core",
+    "crates/media/visual/visual-oneapi",
     "crates/project/property-model",
     "crates/project/project-evaluation",
     "crates/render/export/export-core",
@@ -193,6 +197,8 @@ shrimply-framegraph-appkit = { path = "crates/ui/framegraph/framegraph-appkit" }
 shrimply-framegraph-skia = { path = "crates/ui/framegraph/framegraph-skia" }
 shrimply-gpu-cuda = { path = "crates/gpu/cuda/gpu-cuda" }
 shrimply-gpu-cuda-memory = { path = "crates/gpu/cuda/gpu-cuda-memory" }
+shrimply-gpu-oneapi = { path = "crates/gpu/oneapi/gpu-oneapi" }
+shrimply-denoise-oneapi = { path = "crates/gpu/denoise/denoise-oneapi" }
 shrimply-i18n = { path = "crates/i18n" }
 shrimply-i18n-qt = { path = "crates/ui/i18n/i18n-qt" }
 shrimply-inspector-appkit = { path = "crates/ui/inspector/inspector-appkit" }
@@ -205,6 +211,7 @@ shrimply-keyframe-graph-skia = { path = "crates/ui/keyframe-graph/keyframe-graph
 shrimply-layered-image-loader = { path = "crates/media/visual/layered-image/layered-image-loader" }
 shrimply-local-ipc = { path = "crates/application/local-ipc" }
 shrimply-lip-sync = { path = "crates/media/audio/lip-sync" }
+shrimply-oneapi-test = { path = "crates/binaries/oneapi-test" }
 shrimply-loading-screen-skia = { path = "crates/render/loading-screen-skia" }
 shrimply-manim-bridge = { path = "crates/media/visual/manim/manim-bridge" }
 shrimply-manim-cuda = { path = "crates/media/visual/manim/manim-cuda" }
@@ -281,6 +288,7 @@ shrimply-video-recording = { path = "crates/media/visual/video/video-recording" 
 shrimply-video-recording-windows = { path = "crates/media/visual/video/video-recording-windows" }
 shrimply-visual-core = { path = "crates/media/visual/visual-core" }
 shrimply-visual-cuda = { path = "crates/media/visual/visual-cuda" }
+shrimply-visual-oneapi = { path = "crates/media/visual/visual-oneapi" }
 shrimply-visual-frame = { path = "crates/media/visual/visual-frame" }
 shrimply-visual-modifiers = { path = "crates/media/visual/visual-modifiers" }
 adw = { package = "libadwaita", version = "0.9", features = ["v1_9"] }

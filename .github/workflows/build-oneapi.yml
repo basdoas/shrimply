@@ -10,18 +10,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
-      - name: Install dependencies
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libglib2.0-dev libgtk-4-dev \
             libfreetype6-dev libavutil-dev libavcodec-dev libavformat-dev \
-            libswscale-dev zlib1g-dev
+            libswscale-dev zlib1g-dev clang
 
       - name: Build editor-gtk
         run: |
           export CARGO_BUILD_JOBS=4
           cargo build -p shrimply-editor-gtk --release
+        env:
+          RUST_BACKTRACE: 1
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

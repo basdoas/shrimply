@@ -8,6 +8,7 @@
   freetype,
   gcc,
   gnumake,
+  gn,
   gobject-introspection,
   gtk4,
   gtksourceview5,
@@ -30,6 +31,8 @@
   shrimply-slang,
   uv,
   vte-gtk4,
+  vulkan-headers,
+  vulkan-loader,
 }:
 let
   cudaStubs = lib.getOutput "stubs" cudaPackages.cuda_cudart;
@@ -52,6 +55,7 @@ mkShell {
     freetype
     gcc
     gnumake
+    gn
     gobject-introspection
     gtk4
     gtksourceview5
@@ -70,6 +74,8 @@ mkShell {
     shrimply-slang
     uv
     vte-gtk4
+    vulkan-headers
+    vulkan-loader
   ];
 
   CARGO = "cargo";
@@ -84,6 +90,7 @@ mkShell {
   QT_QMAKE = "${qtEnv}/bin/qmake";
   SLANG_INCLUDE_DIR = "${shrimply-slang}/include";
   SLANG_LIBRARY_DIR = "${shrimply-slang}/lib";
+  SKIA_GN_COMMAND = "${gn}/bin/gn";
 
   shellHook = ''
     export NIX_CFLAGS_COMPILE=
@@ -94,6 +101,8 @@ mkShell {
         opencv
         shrimply-slang
         qtEnv
+        libglvnd
+        vulkan-loader
       ]
     }:/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   '';
